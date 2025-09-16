@@ -72,6 +72,89 @@ User authentication mechanisms are essential to ensure secure and authorized acc
 Client-server chat applications are versatile tools that facilitate real-time communication between users over a network. They incorporate various components, including server-side and client-side elements, and must consider factors such as security, scalability, and concurrency. As technology continues to advance, client-server chat applications remain integral for collaborative communication in various domains.
 
 Client-server chat applications are foundational to real-time communication over networks. They incorporate principles of socket programming, communication protocols, and security mechanisms to provide a seamless user experience. Understanding the basics of client-server chat applications is essential for developers involved in networked application development, as they form the backbone of various collaborative communication systems. As technology evolves, chat applications continue to adapt, incorporating new features and technologies to enhance user interaction and connectivity.
+## code:
+
+ #server.py:
+
+ ```
+import socket
+
+# Create a socket object
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Bind to all available interfaces (works better than gethostname on Windows)
+host = '0.0.0.0'
+port = 8080
+
+try:
+    s.bind((host, port))
+except socket.error as e:
+    print(f"Bind failed. Error: {e}")
+    exit()
+
+print(f"Server started on {socket.gethostbyname(socket.gethostname())}:{port}")
+print("Waiting for connection...\n")
+
+s.listen(1)
+conn, addr = s.accept()
+print(f"{addr} has connected to the server\n")
+
+while True:
+    try:
+        message = input(">> ")
+        conn.send(message.encode())
+
+        incoming_message = conn.recv(1024).decode()
+        if not incoming_message:
+            print("Client disconnected.")
+            break
+        print(incoming_message)
+
+    except Exception as e:
+        print("Error:", e)
+        break
+
+conn.close()
+s.close()
+```
+ #client.py:
+ ```
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+host = input("Enter hostname or host IP: ").strip()
+port = 8080
+
+try:
+    s.connect((host, port))
+    print("Connected to chat server")
+except socket.error as e:
+    print(f"Connection failed. Error: {e}")
+    exit()
+
+while True:
+    try:
+        incoming_message = s.recv(1024).decode()
+        if not incoming_message:
+            print("Server disconnected.")
+            break
+        # Print message directly without "Server:"
+        print(incoming_message)
+
+        message = input(">> ")
+        s.send(message.encode())
+
+    except Exception as e:
+        print("Error:", e)
+        break
+
+s.close()
+
+```
+ 
+##output:
+<img width="2711" height="1526" alt="image" src="https://github.com/user-attachments/assets/0c3e68b8-576a-436f-b369-4afc26f13564" />
 
 
 ## Result:
